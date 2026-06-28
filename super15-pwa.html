@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#0d0f14">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Super 15">
+<title data-id="th-modified">Super 15 Momentum</title>
+<link rel="manifest" href="data:application/json;charset=utf-8,%7B%22name%22%3A%22Super%2015%20Momentum%22%2C%22short_name%22%3A%22Super%2015%22%2C%22description%22%3A%22Screener%20Saham%20Patuh%20Syariah%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230d0f14%22%2C%22theme_color%22%3A%22%230d0f14%22%2C%22orientation%22%3A%22portrait%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%2520xmlns%3D%2527http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%2527%2520viewBox%3D%270%25200%2520100%2520100%2527%253E%253Ctext%2520y%3D%2527.9em%2527%2520font-size%3D%252790%2527%253E%25F0%259F%2595%258C%253C%2Ftext%253E%253C%2Fsvg%253E%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
+<script>
+if ('serviceWorker' in navigator) {
+  const sw = `
+    self.addEventListener('install', e => self.skipWaiting());
+    self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => new Response(''))));
+  `;
+  const blob = new Blob([sw], {type: 'application/javascript'});
+  const swUrl = URL.createObjectURL(blob);
+  navigator.serviceWorker.register(swUrl, {scope: './'}).catch(()=>{});
+}
+</script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0d0f14;
+    --surface: #141720;
+    --surface2: #1a1e2a;
+    --border: rgba(255,255,255,0.08);
+    --text: #ffffff;
+    --muted: rgba(255,255,255,0.4);
+    --dim: rgba(255,255,255,0.15);
+    --emerald: #10b981;
+    --emerald-dim: rgba(16,185,129,0.15);
+    --blue: #3b82f6;
+    --blue-dim: rgba(59,130,246,0.15);
+    --violet: #8b5cf6;
+    --violet-dim: rgba(139,92,246,0.15);
+    --amber: #f59e0b;
+    --amber-dim: rgba(245,158,11,0.15);
+    --gold: #f59e0b;
+    --red: #ef4444;
+  }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    padding-bottom: 80px;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+  .header-top { display: flex; align-items: center; justify-content: space-between; }
+  .header-title { display: flex; align-items: center; gap: 10px; }
+  .header-title h1 { font-size: 18px; font-weight: 900; letter-spacing: -0.5px; }
+  .header-title p { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  .btn-add {
+    background: var(--emerald);
+    color: #000;
+    font-weight: 800;
+    font-size: 13px;
+    padding: 9px 16px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn-add:active { opacity: 0.8; }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    gap: 6px;
+    padding: 12px 20px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    flex-shrink: 0;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tab.active { background: var(--emerald); color: #000; border-color: var(--emerald); }
+
+  /* SUMMARY BAR */
+  .summary-bar {
+    display: flex;
+    gap: 8px;
+    padding: 10px 20px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .summary-bar::-webkit-scrollbar { display: none; }
+  .summary-pill {
+    flex-shrink: 0;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .summary-count { font-weight: 700; color: var(--text); margin-left: 4px; }
+
+  /* CARDS */
+  .cards { padding: 12px 16px; display: flex; flex-direction: column; gap: 12px; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 16px;
+    transition: border-color 0.2s;
+  }
+  .card:active { border-color: var(--emerald); }
+  .card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
+  .card-left {}
+  .card-rank-name { display: flex; align-items: center; gap: 8px; }
+  .card-rank { font-size: 12px; color: var(--muted); font-family: monospace; }
+  .card-name { font-size: 17px; font-weight: 800; }
+  .card-meta { display: flex; align-items: center; gap: 8px; margin-top: 3px; }
+  .card-code { font-size: 11px; background: rgba(255,255,255,0.08); color: var(--muted); padding: 2px 7px; border-radius: 6px; font-family: monospace; }
+  .card-price { font-size: 13px; color: var(--emerald); font-family: monospace; font-weight: 700; }
+  .card-score { text-align: right; }
+  .card-score-num { font-size: 30px; font-weight: 900; line-height: 1; }
+  .card-score-denom { font-size: 14px; color: var(--muted); }
+  .card-rating { font-size: 11px; font-weight: 700; margin-top: 2px; }
+
+  /* SCORE BAR */
+  .score-bar-bg { background: rgba(255,255,255,0.08); border-radius: 4px; height: 5px; margin: 8px 0; }
+  .score-bar-fill { height: 5px; border-radius: 4px; transition: width 0.5s ease; }
+
+  /* CRITERIA DOTS */
+  .criteria-dots { display: flex; flex-wrap: wrap; gap: 4px; margin: 10px 0; }
+  .dot {
+    width: 28px; height: 22px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    font-family: monospace;
+    transition: all 0.2s;
+  }
+  .dot-on-f { background: var(--emerald-dim); color: var(--emerald); border: 1px solid rgba(16,185,129,0.3); }
+  .dot-on-v { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(59,130,246,0.3); }
+  .dot-on-t { background: var(--violet-dim); color: var(--violet); border: 1px solid rgba(139,92,246,0.3); }
+  .dot-on-c { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(245,158,11,0.3); }
+  .dot-off { background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.06); }
+
+  .card-notes { font-size: 12px; color: var(--muted); line-height: 1.5; margin: 8px 0; }
+  .card-actions { display: flex; gap: 12px; margin-top: 10px; }
+  .btn-edit, .btn-del {
+    font-size: 12px; background: none; border: none; cursor: pointer; padding: 4px 0; transition: color 0.2s;
+  }
+  .btn-edit { color: var(--muted); }
+  .btn-edit:active { color: var(--text); }
+  .btn-del { color: rgba(239,68,68,0.4); }
+  .btn-del:active { color: var(--red); }
+
+  /* LEGEND */
+  .legend {
+    margin: 8px 16px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+  }
+  .legend h4 { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; }
+  .legend-item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .legend-num {
+    width: 24px; height: 20px; border-radius: 5px;
+    font-size: 10px; font-weight: 700; font-family: monospace;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .legend-label { font-size: 12px; color: var(--muted); flex: 1; }
+  .legend-group { font-size: 10px; padding: 2px 7px; border-radius: 10px; white-space: nowrap; }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(8px);
+    z-index: 200;
+    display: flex; align-items: flex-end;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px 24px 0 0;
+    width: 100%;
+    max-height: 92vh;
+    overflow-y: auto;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
+    padding-bottom: 40px;
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+  .modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 12px auto 0; }
+  .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+  .modal-header h2 { font-size: 16px; font-weight: 800; }
+  .btn-close { background: none; border: none; color: var(--muted); font-size: 22px; cursor: pointer; }
+  .modal-body { padding: 20px; }
+
+  .form-group { margin-bottom: 16px; }
+  .form-label { font-size: 11px; color: var(--muted); margin-bottom: 6px; display: block; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .form-input {
+    width: 100%;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    color: var(--text);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+  .form-input:focus { border-color: var(--emerald); }
+  .form-input::placeholder { color: var(--dim); }
+  textarea.form-input { resize: none; font-family: inherit; }
+
+  .criteria-section { margin-bottom: 16px; }
+  .criteria-group-label {
+    font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 10px;
+    display: inline-block; margin-bottom: 10px;
+  }
+  .criteria-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    cursor: pointer;
+  }
+  .criteria-item:last-child { border-bottom: none; }
+  .checkbox {
+    width: 22px; height: 22px; border-radius: 7px;
+    border: 1.5px solid var(--border);
+    background: rgba(255,255,255,0.05);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all 0.2s;
+  }
+  .checkbox.checked { background: var(--emerald); border-color: var(--emerald); }
+  .checkbox-tick { color: #000; font-size: 13px; font-weight: 900; display: none; }
+  .checkbox.checked .checkbox-tick { display: block; }
+  .criteria-text { font-size: 13px; color: rgba(255,255,255,0.65); line-height: 1.4; }
+
+  .form-actions { display: flex; gap: 10px; margin-top: 20px; }
+  .btn-save {
+    flex: 1; background: var(--emerald); color: #000; font-weight: 800;
+    font-size: 15px; padding: 14px; border-radius: 14px; border: none; cursor: pointer;
+  }
+  .btn-save:disabled { background: rgba(255,255,255,0.1); color: var(--muted); cursor: not-allowed; }
+  .btn-cancel {
+    padding: 14px 20px; background: rgba(255,255,255,0.08); color: var(--muted);
+    border-radius: 14px; border: none; cursor: pointer; font-size: 15px;
+  }
+
+  /* SCORE PREVIEW */
+  .score-preview {
+    background: rgba(255,255,255,0.04);
+    border-radius: 14px;
+    padding: 14px;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+  .score-preview-num { font-size: 40px; font-weight: 900; }
+  .score-preview-label { font-size: 12px; color: var(--muted); }
+
+  /* EMPTY */
+  .empty { text-align: center; padding: 60px 20px; color: var(--muted); }
+  .empty-icon { font-size: 48px; margin-bottom: 12px; }
+
+  /* BOTTOM NAV */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding: 8px 0 20px;
+    z-index: 100;
+  }
+  .nav-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    gap: 3px; padding: 6px 0; cursor: pointer;
+    font-size: 10px; color: var(--muted); border: none; background: none;
+    transition: color 0.2s;
+  }
+  .nav-item.active { color: var(--emerald); }
+  .nav-icon { font-size: 20px; }
+
+  /* DISCLAIMER */
+  .disclaimer {
+    text-align: center; padding: 16px 20px;
+    font-size: 10px; color: rgba(255,255,255,0.12);
+    line-height: 1.5;
+  }
+
+  /* ABOUT */
+  .about-page { padding: 20px; display: none; }
+  .about-page.active { display: block; }
+  .about-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 12px; }
+  .about-card h3 { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+  .about-card p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .about-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 6px 12px; border-radius: 10px; margin: 3px; }
+</style>
+<meta property="og:title" content="Super 15 Momentum" data-id="th-modified" ><meta name="description" content="super15-momentum-3" data-id="th-modified" ><meta property="og:description" content="super15-momentum-3" data-id="th-modified" ><meta property="og:image" content="https://tiiny.host/assets/logo-purple-bg.png" data-id="th-modified" ><meta property="og:image:width" content="1501" data-id="th-modified" ><meta property="og:image:height" content="1501" data-id="th-modified" ><meta property="og:image:type" content="image/png" data-id="th-modified" ><meta property="og:url" content="https://crimson-lira-19-f608fb.tiiny.site/" data-id="th-modified" ><meta property="og:type" content="website" data-id="th-modified" ><script defer data-domain="crimson-lira-19-f608fb.tiiny.site" src="https://analytics.tiiny.site/js/plausible.js"></script><script type="text/javascript" src="https://tiiny.host/ad-script.js"></script></head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div class="header-title">
+      <span style="font-size:24px">🕌</span>
+      <div>
+        <h1>Super 15 Momentum</h1>
+        <p>Screener Saham Patuh Syariah · &lt; RM1</p>
+      </div>
+    </div>
+    <button class="btn-add" onclick="openAdd()">+ Tambah</button>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab active" onclick="setTab('ranking',this)">🏆 Ranking</button>
+  <button class="tab" onclick="setTab('kriteria',this)">📋 Kriteria</button>
+  <button class="tab" onclick="setTab('tentang',this)">ℹ️ Tentang</button>
+</div>
+
+<!-- SUMMARY BAR -->
+<div class="summary-bar" id="summaryBar"></div>
+
+<!-- MAIN PAGES -->
+<div id="page-ranking">
+  <div class="cards" id="cardList"></div>
+  <div class="legend" id="legendBox"></div>
+  <div class="disclaimer">⚠️ Bukan nasihat kewangan. Buat kajian sendiri sebelum melabur.<br>Super 15 Momentum © 2026</div>
+</div>
+
+<div id="page-kriteria" style="display:none; padding:16px;">
+</div>
+
+<div id="page-tentang" style="display:none; padding:16px;">
+  <div class="about-card">
+    <h3>🎯 Apa itu Super 15 Momentum?</h3>
+    <p>Framework untuk cari saham patuh syariah bawah RM1 yang bukan sekadar murah — tetapi ada potensi re-rating berdasarkan fundamental, valuation, teknikal, dan catalyst.</p>
+  </div>
+  <div class="about-card">
+    <h3>📊 Sistem Pemarkahan</h3>
+    <div>
+      <div class="about-badge" style="background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.3)">🟢 Fundamental · 5 mata</div>
+      <div class="about-badge" style="background:rgba(59,130,246,0.15);color:#3b82f6;border:1px solid rgba(59,130,246,0.3)">🔵 Valuation · 2 mata</div>
+      <div class="about-badge" style="background:rgba(139,92,246,0.15);color:#8b5cf6;border:1px solid rgba(139,92,246,0.3)">🟣 Technical · 3 mata</div>
+      <div class="about-badge" style="background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3)">🟡 Catalyst · 1 mata</div>
+      <div class="about-badge" style="background:rgba(236,72,153,0.15);color:#ec4899;border:1px solid rgba(236,72,153,0.3)">🔴 Super · 4 mata</div>
+    </div>
+  </div>
+  <div class="about-card">
+    <h3>⭐ Rating</h3>
+    <p>
+      ⭐⭐⭐⭐⭐ SUPER — 13–15/15<br>
+      ⭐⭐⭐⭐ KUAT — 10–12/15<br>
+      ⭐⭐⭐ SEDERHANA — 7–9/15<br>
+      ⭐⭐ LEMAH — 4–6/15<br>
+      ⭐ ELAK — 0–3/15
+    </p>
+  </div>
+  <div class="about-card">
+    <h3>📱 Install sebagai App Android</h3>
+    <p>Buka fail HTML ini dalam Chrome → ketuk menu ⋮ → "Add to Home screen" → ia akan nampak macam app betul atas homescreen kau.</p>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <button class="nav-item active" id="nav-ranking" onclick="setTab('ranking',null,'nav-ranking')">
+    <span class="nav-icon">🏆</span>Ranking
+  </button>
+  <button class="nav-item" id="nav-kriteria" onclick="setTab('kriteria',null,'nav-kriteria')">
+    <span class="nav-icon">📋</span>Kriteria
+  </button>
+  <button class="nav-item" id="nav-tentang" onclick="setTab('tentang',null,'nav-tentang')">
+    <span class="nav-icon">ℹ️</span>Tentang
+  </button>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <h2 id="modalTitle">Tambah Saham</h2>
+      <button class="btn-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="score-preview">
+        <div class="score-preview-num" id="scorePreview">0<span style="color:rgba(255,255,255,0.2);font-size:20px">/15</span></div>
+        <div class="score-preview-label" id="ratingPreview">Tandakan kriteria yang dipenuhi</div>
+      </div>
+
+      <div class="form-row form-group">
+        <div>
+          <label class="form-label">Nama Syarikat *</label>
+          <input class="form-input" id="fName" placeholder="cth: Bumi Armada" oninput="updatePreview()">
+        </div>
+        <div>
+          <label class="form-label">Kod Saham</label>
+          <input class="form-input" id="fCode" placeholder="cth: 5210" style="font-family:monospace">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Harga Semasa (RM)</label>
+        <input class="form-input" id="fPrice" placeholder="cth: 0.480" type="number" step="0.001" style="font-family:monospace">
+      </div>
+
+      <div id="criteriaForm"></div>
+
+      <div class="form-group">
+        <label class="form-label">Nota / Catalyst</label>
+        <textarea class="form-input" id="fNotes" rows="3" placeholder="Tulis sebab, catalyst, atau pemerhatian..."></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-save" id="btnSave" onclick="saveStock()">Simpan</button>
+        <button class="btn-cancel" onclick="closeModal()">Batal</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const CRITERIA = [
+  { id:1,  group:"Fundamental", key:"syariah",       label:"Patuh Syariah" },
+  { id:2,  group:"Fundamental", key:"priceBelow1",   label:"Harga bawah RM1" },
+  { id:3,  group:"Fundamental", key:"revenueGrowth", label:"Revenue meningkat ≥2 tahun berturut-turut" },
+  { id:4,  group:"Fundamental", key:"profitPositive",label:"Untung bersih positif / turnaround" },
+  { id:5,  group:"Fundamental", key:"debtControlled",label:"Debt terkawal (gearing rendah/menurun)" },
+  { id:6,  group:"Valuation",   key:"pbBelow1",      label:"P/B < 1.0 atau hampir NTA" },
+  { id:7,  group:"Valuation",   key:"smallCap",      label:"Market Cap kecil/sederhana" },
+  { id:8,  group:"Technical",   key:"aboveMA",       label:"Harga di atas MA20 & MA50" },
+  { id:9,  group:"Technical",   key:"highVolume",    label:"Volume ≥ 2x purata 20 hari" },
+  { id:10, group:"Technical",   key:"rsiOk",         label:"RSI antara 50–70 (belum overbought)" },
+  { id:11, group:"Catalyst",    key:"catalyst",      label:"Ada catalyst (kontrak, projek, turnaround, sektor hot)" },
+  { id:12, group:"Super",       key:"insiderBuy",    label:"Insider buying (pengurusan beli saham sendiri)" },
+  { id:13, group:"Super",       key:"qrPositive",    label:"QR terbaru (Quarterly Result) positif / beat" },
+  { id:14, group:"Super",       key:"cashflowPos",   label:"Cashflow operasi positif (bukan sekadar untung kertas)" },
+  { id:15, group:"Super",       key:"foreignFlow",   label:"Foreign / institutional fund flow masuk" },
+];
+
+const GROUP_STYLE = {
+  Fundamental: { badge:"background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.3)", dot:"dot-on-f" },
+  Valuation:   { badge:"background:rgba(59,130,246,0.15);color:#3b82f6;border:1px solid rgba(59,130,246,0.3)",  dot:"dot-on-v" },
+  Technical:   { badge:"background:rgba(139,92,246,0.15);color:#8b5cf6;border:1px solid rgba(139,92,246,0.3)",  dot:"dot-on-t" },
+  Catalyst:    { badge:"background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3)",  dot:"dot-on-c" },
+  Super:       { badge:"background:rgba(236,72,153,0.15);color:#ec4899;border:1px solid rgba(236,72,153,0.3)",  dot:"dot-on-s" },
+};
+
+// Add super dot style
+const style = document.createElement('style');
+style.textContent = `.dot-on-s { background:rgba(236,72,153,0.15);color:#ec4899;border:1px solid rgba(236,72,153,0.3); }`;
+document.head.appendChild(style);
+
+function getRating(score) {
+  if (score >= 13) return { label:"⭐⭐⭐⭐⭐ SUPER", color:"#f59e0b" };
+  if (score >= 10) return { label:"⭐⭐⭐⭐ KUAT",  color:"#f59e0b" };
+  if (score >= 7)  return { label:"⭐⭐⭐ SEDERHANA", color:"#6b7280" };
+  if (score >= 4)  return { label:"⭐⭐ LEMAH",   color:"#4b5563" };
+  return              { label:"⭐ ELAK",          color:"#374151" };
+}
+
+function getBarColor(score) {
+  if (score >= 13) return "#f59e0b";
+  if (score >= 10) return "#10b981";
+  if (score >= 7)  return "#3b82f6";
+  return "#4b5563";
+}
+
+// STORAGE
+function loadStocks() {
+  try { return JSON.parse(localStorage.getItem('super15_stocks') || 'null') || getDefaultStocks(); }
+  catch(e) { return getDefaultStocks(); }
+}
+function saveStocks(stocks) {
+  try { localStorage.setItem('super15_stocks', JSON.stringify(stocks)); } catch(e) {}
+}
+
+function getDefaultStocks() {
+  return [
+    { id:1, name:"Bumi Armada", code:"5210", price:"0.480", notes:"Turnaround berjaya, FPSO kontrak jangka panjang, debt semakin baik.",
+      criteria:{ syariah:true, priceBelow1:true, revenueGrowth:true, profitPositive:true, debtControlled:true, pbBelow1:true, smallCap:false, aboveMA:true, highVolume:true, rsiOk:true, catalyst:true, insiderBuy:true, qrPositive:true, cashflowPos:true, foreignFlow:false } },
+    { id:2, name:"Petra Energy", code:"5133", price:"0.310", notes:"O&G upstream, manfaat jika aktiviti offshore meningkat.",
+      criteria:{ syariah:true, priceBelow1:true, revenueGrowth:true, profitPositive:true, debtControlled:false, pbBelow1:true, smallCap:true, aboveMA:true, highVolume:false, rsiOk:true, catalyst:true, insiderBuy:false, qrPositive:true, cashflowPos:true, foreignFlow:false } },
+    { id:3, name:"Sedania Innovator", code:"0072", price:"0.100", notes:"Islamic fintech & ESG, turnaround model bisnes, ACE Market — volatiliti tinggi.",
+      criteria:{ syariah:true, priceBelow1:true, revenueGrowth:false, profitPositive:true, debtControlled:true, pbBelow1:true, smallCap:true, aboveMA:false, highVolume:true, rsiOk:true, catalyst:true, insiderBuy:false, qrPositive:false, cashflowPos:false, foreignFlow:false } },
+    { id:4, name:"THMY Holdings", code:"7070", price:"0.220", notes:"Momentum teknikal kuat, top performer Mei 2026, sektor pembinaan.",
+      criteria:{ syariah:true, priceBelow1:true, revenueGrowth:true, profitPositive:true, debtControlled:true, pbBelow1:false, smallCap:true, aboveMA:true, highVolume:true, rsiOk:false, catalyst:false, insiderBuy:false, qrPositive:true, cashflowPos:true, foreignFlow:false } },
+    { id:5, name:"PJBumi", code:"7108", price:"0.350", notes:"Sektor tenaga masih aktif, untung meningkat, patuh syariah.",
+      criteria:{ syariah:true, priceBelow1:true, revenueGrowth:true, profitPositive:true, debtControlled:true, pbBelow1:true, smallCap:true, aboveMA:true, highVolume:false, rsiOk:true, catalyst:true, insiderBuy:false, qrPositive:true, cashflowPos:false, foreignFlow:false } },
+  ];
+}
+
+let stocks = loadStocks();
+let editingId = null;
+
+function getScore(stock) {
+  return CRITERIA.filter(c => stock.criteria[c.key]).length;
+}
+
+// RENDER CARDS
+function renderCards() {
+  const sorted = [...stocks].sort((a,b) => getScore(b) - getScore(a));
+  const list = document.getElementById('cardList');
+
+  if (sorted.length === 0) {
+    list.innerHTML = `<div class="empty"><div class="empty-icon">📊</div><p>Belum ada saham.<br>Tap "+ Tambah" untuk mula.</p></div>`;
+    renderSummary([]);
+    return;
+  }
+
+  list.innerHTML = sorted.map((stock, i) => {
+    const score = getScore(stock);
+    const pct = (score/15)*100;
+    const rating = getRating(score);
+    const barColor = getBarColor(score);
+
+    const dots = CRITERIA.map(c => {
+      const on = stock.criteria[c.key];
+      const cls = on ? GROUP_STYLE[c.group].dot : 'dot-off';
+      return `<div class="dot ${cls}">${c.id}</div>`;
+    }).join('');
+
+    return `
+    <div class="card">
+      <div class="card-header">
+        <div class="card-left">
+          <div class="card-rank-name">
+            <span class="card-rank">#${i+1}</span>
+            <span class="card-name">${stock.name || '—'}</span>
+          </div>
+          <div class="card-meta">
+            ${stock.code ? `<span class="card-code">${stock.code}</span>` : ''}
+            ${stock.price ? `<span class="card-price">RM ${parseFloat(stock.price).toFixed(3)}</span>` : ''}
+          </div>
+        </div>
+        <div class="card-score">
+          <div class="card-score-num">${score}<span class="card-score-denom">/15</span></div>
+          <div class="card-rating" style="color:${rating.color}">${rating.label}</div>
+        </div>
+      </div>
+      <div class="score-bar-bg"><div class="score-bar-fill" style="width:${pct}%;background:${barColor}"></div></div>
+      <div class="criteria-dots">${dots}</div>
+      ${stock.notes ? `<div class="card-notes">${stock.notes}</div>` : ''}
+      <div class="card-actions">
+        <button class="btn-edit" onclick="openEdit(${stock.id})">✏️ Edit</button>
+        <button class="btn-del" onclick="deleteStock(${stock.id})">🗑️ Padam</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  renderSummary(sorted);
+}
+
+function renderSummary(sorted) {
+  const bar = document.getElementById('summaryBar');
+  const total = sorted.length;
+  const super5 = sorted.filter(s => getScore(s) >= 13).length;
+  const kuat = sorted.filter(s => getScore(s) >= 10 && getScore(s) < 13).length;
+  bar.innerHTML = `
+    <div class="summary-pill">Jumlah <span class="summary-count">${total}</span></div>
+    <div class="summary-pill">⭐⭐⭐⭐⭐ SUPER <span class="summary-count">${super5}</span></div>
+    <div class="summary-pill">⭐⭐⭐⭐ KUAT <span class="summary-count">${kuat}</span></div>
+    <div class="summary-pill">Kriteria <span class="summary-count">15</span></div>
+  `;
+}
+
+// LEGEND
+function renderLegend() {
+  const box = document.getElementById('legendBox');
+  box.innerHTML = `<h4>15 Kriteria</h4>` + CRITERIA.map(c => `
+    <div class="legend-item">
+      <div class="legend-num" style="${GROUP_STYLE[c.group].badge}">${c.id}</div>
+      <div class="legend-label">${c.label}</div>
+      <div class="legend-group" style="${GROUP_STYLE[c.group].badge}">${c.group}</div>
+    </div>
+  `).join('');
+}
+
+// CRITERIA PAGE
+function renderCriteriaPage() {
+  const page = document.getElementById('page-kriteria');
+  const groups = [...new Set(CRITERIA.map(c => c.group))];
+  page.innerHTML = groups.map(group => {
+    const items = CRITERIA.filter(c => c.group === group);
+    return `
+      <div style="margin-bottom:20px;">
+        <div style="margin-bottom:10px;">
+          <span style="font-size:12px;font-weight:700;padding:4px 12px;border-radius:10px;${GROUP_STYLE[group].badge}">${group}</span>
+          <span style="font-size:11px;color:rgba(255,255,255,0.3);margin-left:8px;">${items.length} kriteria</span>
+        </div>
+        ${items.map(c => `
+          <div style="background:rgba(255,255,255,0.04);border-radius:12px;padding:12px 14px;margin-bottom:6px;display:flex;align-items:center;gap:12px;">
+            <div style="width:26px;height:22px;border-radius:6px;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;${GROUP_STYLE[c.group].badge};flex-shrink:0">${c.id}</div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.6);">${c.label}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }).join('');
+}
+
+// MODAL
+let formState = {};
+
+function buildCriteriaForm() {
+  const container = document.getElementById('criteriaForm');
+  const groups = [...new Set(CRITERIA.map(c => c.group))];
+  container.innerHTML = groups.map(group => {
+    const items = CRITERIA.filter(c => c.group === group);
+    return `
+      <div class="criteria-section">
+        <div class="criteria-group-label" style="${GROUP_STYLE[group].badge}">${group}</div>
+        ${items.map(c => `
+          <div class="criteria-item" onclick="toggleCriteria('${c.key}')">
+            <div class="checkbox ${formState[c.key] ? 'checked' : ''}" id="chk_${c.key}">
+              <span class="checkbox-tick">✓</span>
+            </div>
+            <div class="criteria-text">${c.label}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }).join('');
+}
+
+function toggleCriteria(key) {
+  formState[key] = !formState[key];
+  const chk = document.getElementById('chk_' + key);
+  if (chk) {
+    chk.className = 'checkbox ' + (formState[key] ? 'checked' : '');
+  }
+  updatePreview();
+}
+
+function updatePreview() {
+  const score = CRITERIA.filter(c => formState[c.key]).length;
+  const rating = getRating(score);
+  document.getElementById('scorePreview').innerHTML = `${score}<span style="color:rgba(255,255,255,0.2);font-size:20px">/15</span>`;
+  document.getElementById('ratingPreview').style.color = rating.color;
+  document.getElementById('ratingPreview').textContent = rating.label;
+
+  const name = document.getElementById('fName').value.trim();
+  document.getElementById('btnSave').disabled = !name;
+}
+
+function openAdd() {
+  editingId = null;
+  formState = Object.fromEntries(CRITERIA.map(c => [c.key, false]));
+  document.getElementById('fName').value = '';
+  document.getElementById('fCode').value = '';
+  document.getElementById('fPrice').value = '';
+  document.getElementById('fNotes').value = '';
+  document.getElementById('modalTitle').textContent = 'Tambah Saham';
+  buildCriteriaForm();
+  updatePreview();
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function openEdit(id) {
+  const stock = stocks.find(s => s.id === id);
+  if (!stock) return;
+  editingId = id;
+  formState = { ...stock.criteria };
+  document.getElementById('fName').value = stock.name;
+  document.getElementById('fCode').value = stock.code || '';
+  document.getElementById('fPrice').value = stock.price || '';
+  document.getElementById('fNotes').value = stock.notes || '';
+  document.getElementById('modalTitle').textContent = 'Edit Saham';
+  buildCriteriaForm();
+  updatePreview();
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+
+function saveStock() {
+  const name = document.getElementById('fName').value.trim();
+  if (!name) return;
+  const stock = {
+    name,
+    code: document.getElementById('fCode').value.trim(),
+    price: document.getElementById('fPrice').value.trim(),
+    notes: document.getElementById('fNotes').value.trim(),
+    criteria: { ...formState },
+  };
+  if (editingId) {
+    stocks = stocks.map(s => s.id === editingId ? { ...s, ...stock } : s);
+  } else {
+    stock.id = Date.now();
+    stocks.push(stock);
+  }
+  saveStocks(stocks);
+  closeModal();
+  renderCards();
+}
+
+function deleteStock(id) {
+  if (!confirm('Padam kaunter ini?')) return;
+  stocks = stocks.filter(s => s.id !== id);
+  saveStocks(stocks);
+  renderCards();
+}
+
+// TABS
+function setTab(name, tabEl, navId) {
+  ['ranking','kriteria','tentang'].forEach(t => {
+    document.getElementById('page-' + t).style.display = t === name ? 'block' : 'none';
+  });
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  if (tabEl) tabEl.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const nav = navId || 'nav-' + name;
+  const navEl = document.getElementById(nav);
+  if (navEl) navEl.classList.add('active');
+  document.getElementById('summaryBar').style.display = name === 'ranking' ? 'flex' : 'none';
+
+  // sync tab buttons
+  document.querySelectorAll('.tab').forEach(t => {
+    if (t.getAttribute('onclick') && t.getAttribute('onclick').includes("'" + name + "'")) {
+      t.classList.add('active');
+    }
+  });
+}
+
+// INIT
+document.addEventListener('DOMContentLoaded', () => {
+  renderCards();
+  renderLegend();
+  renderCriteriaPage();
+});
+
+// Close modal on overlay click
+document.getElementById('modalOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+</script>
+</body>
+</html>
